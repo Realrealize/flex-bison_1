@@ -1,41 +1,18 @@
+/* recognize tokens for the calculator and print them out */
 %{
-#include <stdio.h>
+#include "fb1-5.tab.h"
 %}
 
-/* declare tokens */
-%token NUMBER
-%token ADD SUB MUL DIV ABS
-%token EOL
-
 %%
-
-calclist: /* nothing */
-    | calclist exp EOL { printf("= %d\n", $2); }
-    ;
-
-exp: factor              { $$ = $1; }
-    | exp ADD factor     { $$ = $1 + $3; }
-    | exp SUB factor     { $$ = $1 - $3; }
-    ;
-
-factor: term             { $$ = $1; }
-    | factor MUL term    { $$ = $1 * $3; }
-    | factor DIV term    { $$ = $1 / $3; }
-    ;
-
-term: NUMBER             { $$ = $1; }
-    | ABS term           { $$ = $2 >= 0 ? $2 : -$2; }
-    ;
-
+"(" { return OP; }
+")" { return CP; }
+"+" { return ADD; }
+"-" { return SUB; }
+"*" { return MUL; }
+"/" { return DIV; }
+"|" { return ABS; }
+[+-]?[0-9]+ { yylval = atoi(yytext); return NUMBER; }
+\n { return EOL; }
+[ \t] {  }
+. { printf("Mystery character %c\n", *yytext); }
 %%
-
-int main(int argc, char **argv)
-{
-    yyparse();
-    return 0;
-}
-
-void yyerror(char *s)
-{
-    fprintf(stderr, "error: %s\n", s);
-}
